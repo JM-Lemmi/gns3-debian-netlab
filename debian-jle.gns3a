@@ -1,6 +1,6 @@
 {
     "appliance_id": "a5b40bbc-d3ce-4a64-8d55-7ff1fdb859b7",
-    "name": "Debian-netlab",
+    "name": "Debian-Netlab",
     "category": "guest",
     "description": "Debian is a GNU/Linux distribution composed of free and open-source software, developed by the community-supported Debian Project.",
     "vendor_name": "Debian",
@@ -34,8 +34,8 @@
         {
             "filename": "debian-netpkgs.iso",
             "version": "12",
-            "md5sum": "c96f1bf976367971dead83416f3357bd",
-            "filesize": 40587264
+            "md5sum": "3192d003067cea87640e989d3933edff",
+            "filesize": 58423296
         }
     ],
     "versions": [
