@@ -1,0 +1,50 @@
+{
+    "appliance_id": "a5b40bbc-d3ce-4a64-8d55-7ff1fdb859b7",
+    "name": "Debian-netlab",
+    "category": "guest",
+    "description": "Debian is a GNU/Linux distribution composed of free and open-source software, developed by the community-supported Debian Project.",
+    "vendor_name": "Debian",
+    "vendor_url": "https://www.debian.org",
+    "product_name": "Debian",
+    "registry_version": 4,
+    "status": "experimental",
+    "maintainer": "Julian Lemmerich",
+    "maintainer_email": "gns3@julian-lemmerich.de",
+    "usage": "Username:\nroot\nPassword:\n",
+    "symbol": "linux_guest.svg",
+    "port_name_format": "ens{port4}",
+    "qemu": {
+        "adapter_type": "virtio-net-pci",
+        "adapters": 1,
+        "ram": 512,
+        "hda_disk_interface": "scsi",
+        "arch": "x86_64",
+        "console_type": "telnet",
+        "kvm": "allow"
+    },
+    "images": [
+        {
+            "filename": "debian-12-nocloud-amd64.qcow2",
+            "version": "12",
+            "md5sum": "7dd9da43795fea484e723f057c237971",
+            "filesize": 414372864,
+            "download_url": "https://cloud.debian.org/images/cloud/bookworm/latest/",
+            "direct_download_url": "https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-nocloud-amd64.qcow2"
+        },
+        {
+            "filename": "debian-netpkgs.iso",
+            "version": "12",
+            "md5sum": "c96f1bf976367971dead83416f3357bd",
+            "filesize": 40587264
+        }
+    ],
+    "versions": [
+        {
+            "name": "12",
+            "images": {
+                "hda_disk_image": "debian-12-nocloud-amd64.qcow2",
+                "cdrom_image": "debian-netpkgs.iso"
+            }
+        }
+    ]
+}
