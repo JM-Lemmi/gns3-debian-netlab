@@ -8,7 +8,7 @@ jobs:
     container:
       image: debian
     env:
-      PKG: "frr frr-doc nmap netcat-traditional telnet wget curl apache2 ca-certificates net-tools nftables iptables ebtables bind9 nginx dnsmasq ifupdown bind9-dnsutils neovim"
+      PKG: "frr frr-doc nmap netcat-traditional telnet wget curl apache2 ca-certificates net-tools nftables iptables ebtables bind9 nginx dnsmasq ifupdown bind9-dnsutils isc-dhcp-client neovim"
     steps:
       - run: apt update && apt install -y apt-rdepends dpkg-dev genisoimage
       - run: apt download $(apt-rdepends $PKG|grep -v "^ "|grep --invert-match -e debconf-2.0 -e libblas.so.3 -e cron-daemon -e libaprutil1-dbd-freetds)
