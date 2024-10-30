@@ -22,47 +22,97 @@ jobs:
           if-no-files-found: error
           compression-level: 0
     
-  modify-img:
+  modify-img-networkd:
     runs-on: ubuntu-latest
     container:
       image: debian
     steps:
+      - uses: actions/checkout@v4
       - run: apt update && apt install -y libguestfs-tools
-      - run: wget https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-nocloud-amd64.qcow2
+      - run: wget --quiet https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-nocloud-amd64.qcow2
 
-      - name: install and enable networking.service in image
-        run: virt-customize -a debian-12-nocloud-amd64.qcow2 --run-command 'apt update && apt install -y ifupdown && systemctl disable systemd-networkd.service systemd-networkd.socket && systemctl mask systemd-networkd.service systemd-networkd.socket && systemctl enable networking.service'
+      # installing some basic tools
+      - run: virt-customize -a debian-12-nocloud-amd64.qcow2 --run-command 'apt update && apt install -y procps'
       - run: virt-customize -a debian-12-nocloud-amd64.qcow2 --run-command 'apt update && apt install -y nano neovim'
+      - run: virt-customize -a debian-12-nocloud-amd64.qcow2 --hostname debian
+      
+      # offline apt
+      - run: virt-customize -a debian-12-nocloud-amd64.qcow2 --run-command 'mv /etc/apt/sources.list.d/debian.sources /etc/apt/sources.list.d/debian.sources.bak && echo "deb [trusted=yes] file:/mnt/cdrom ./" > /etc/apt/sources.list.d/cdrom.list && rm -rf /var/lib/apt/lists/*'
+      - run: virt-customize -a debian-12-nocloud-amd64.qcow2 --copy-in cdrom.mount:/etc/systemd/system/
+      - run: virt-customize -a debian-12-nocloud-amd64.qcow2 --run-command 'mkdir -p /mnt/cdrom && systemctl enable cdrom.mount'
 
+      - run: mv debian-12-nocloud-amd64.qcow2 debian12-netlab-networkd.qcow2
       - uses: actions/upload-artifact@v4
         with:
-          name: debian-12-nocloud-amd64.qcow2
-          path: debian-12-nocloud-amd64.qcow2
+          name: debian12-netlab-networkd.qcow2
+          path: debian12-netlab-networkd.qcow2
+          if-no-files-found: error
+          compression-level: 0
+  
+  modify-img-ifupdown:
+    runs-on: ubuntu-latest
+    container:
+      image: debian
+    steps:
+      - uses: actions/checkout@v4
+      - run: apt update && apt install -y libguestfs-tools
+      - run: wget --quiet https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-nocloud-amd64.qcow2
+
+      # installing some basic tools
+      - run: virt-customize -a debian-12-nocloud-amd64.qcow2 --run-command 'apt update && apt install -y procps'
+      - run: virt-customize -a debian-12-nocloud-amd64.qcow2 --run-command 'apt update && apt install -y nano neovim'
+      - run: virt-customize -a debian-12-nocloud-amd64.qcow2 --hostname debian
+      
+      # installing ifupdown as network configuration tool
+      - name: install and enable networking.service in image
+        run: virt-customize -a debian-12-nocloud-amd64.qcow2 --run-command 'apt update && apt install -y ifupdown && systemctl disable systemd-networkd.service systemd-networkd.socket && systemctl mask systemd-networkd.service systemd-networkd.socket && systemctl enable networking.service'
+    
+      # offline apt
+      - run: virt-customize -a debian-12-nocloud-amd64.qcow2 --run-command 'mv /etc/apt/sources.list.d/debian.sources /etc/apt/sources.list.d/debian.sources.bak && echo "deb [trusted=yes] file:/mnt/cdrom ./" > /etc/apt/sources.list.d/cdrom.list && rm -rf /var/lib/apt/lists/*'
+      - run: virt-customize -a debian-12-nocloud-amd64.qcow2 --copy-in cdrom.mount:/etc/systemd/system/
+      - run: virt-customize -a debian-12-nocloud-amd64.qcow2 --run-command 'mkdir -p /mnt/cdrom && systemctl enable cdrom.mount'
+      
+
+      - run: mv debian-12-nocloud-amd64.qcow2 debian12-netlab-ifupdown.qcow2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: debian12-netlab-ifupdown.qcow2
+          path: debian12-netlab-ifupdown.qcow2
           if-no-files-found: error
           compression-level: 0
 
-
   generate-gns3a:
-    needs: [generate-iso, modify-img]
+    needs: [generate-iso, modify-img-networkd, modify-img-ifupdown]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
+      # systemd-networkd image
+      - name: Download debian12-netlab-networkd.qcow2
+        uses: actions/download-artifact@v4
+        with:
+          name: debian12-netlab-networkd.qcow2
+      - name: replace md5sum of debian-12-nocloud-amd64.qcow2
+        run: sed -i "s/placeholderfornetworkdmd5/$(md5sum debian12-netlab-networkd.qcow2 | cut -d' ' -f1)/g" debian-jle.gns3a
+      - run: sed -i "s/placeholderfornetworkdsize/$(wc -c debian12-netlab-networkd.qcow2 | cut -d' ' -f1)/g" debian-jle.gns3a
+
+      # ifupdown image
+      - name: Download debian12-netlab-ifupdown.qcow2
+        uses: actions/download-artifact@v4
+        with:
+          name: debian12-netlab-ifupdown.qcow2
+      - name: replace md5sum of debian-12-nocloud-amd64.qcow2
+        run: sed -i "s/placeholderforupdownmd5/$(md5sum debian12-netlab-ifupdown.qcow2 | cut -d' ' -f1)/g" debian-jle.gns3a
+      - run: sed -i "s/placeholderforupdownsize/$(wc -c debian12-netlab-ifupdown.qcow2 | cut -d' ' -f1)/g" debian-jle.gns3a
+
+      # apt iso
       - name: Download debian-netpkgs.iso
         uses: actions/download-artifact@v4
         with:
           name: debian-netpkgs.iso
-      - name: Download debian-netpkgs.iso
-        uses: actions/download-artifact@v4
-        with:
-          name: debian-12-nocloud-amd64.qcow2
-      
-      - name: replace md5sum of debian-12-nocloud-amd64.qcow2
-        run: sed -i "s/7dd9da43795fea484e723f057c237971/$(md5sum debian-12-nocloud-amd64.qcow2 | cut -d' ' -f1)/g" debian-jle.gns3a
-      - run: sed -i "s/414372864/$(wc -c debian-12-nocloud-amd64.qcow2 | cut -d' ' -f1)/g" debian-jle.gns3a
       - name: replace md5sum of debian-netpkgs.iso
-        run: sed -i "s/3192d003067cea87640e989d3933edff/$(md5sum debian-netpkgs.iso | cut -d' ' -f1)/g" debian-jle.gns3a
-      - run: sed -i "s/58423296/$(wc -c debian-netpkgs.iso | cut -d' ' -f1)/g" debian-jle.gns3a
+        run: sed -i "s/placeholderforisomd5/$(md5sum debian-netpkgs.iso | cut -d' ' -f1)/g" debian-jle.gns3a
+      - run: sed -i "s/placeholderforisosize/$(wc -c debian-netpkgs.iso | cut -d' ' -f1)/g" debian-jle.gns3a
 
       - uses: actions/upload-artifact@v4
         with:

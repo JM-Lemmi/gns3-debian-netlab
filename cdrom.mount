@@ -1,0 +1,11 @@
+[Unit]
+Description=Mount CD-Rom
+
+[Mount]
+What=/dev/sr0
+Where=/mnt/cdrom
+Type=iso9660
+Options=ro,noatime
+
+[Install]
+WantedBy=multi-user.target
