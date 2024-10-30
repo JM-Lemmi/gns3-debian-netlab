@@ -24,25 +24,36 @@
     },
     "images": [
         {
-            "filename": "debian-12-nocloud-amd64.qcow2",
+            "filename": "debian12-netlab-networkd.qcow2",
             "version": "12",
-            "md5sum": "7dd9da43795fea484e723f057c237971",
-            "filesize": 414372864,
-            "download_url": "https://cloud.debian.org/images/cloud/bookworm/latest/",
-            "direct_download_url": "https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-nocloud-amd64.qcow2"
+            "md5sum": "placeholderfornetworkdmd5",
+            "filesize": placeholderfornetworkdsize
+        },
+        {
+            "filename": "debian12-netlab-ifupdown.qcow2",
+            "version": "12",
+            "md5sum": "placeholderforupdowndmd5",
+            "filesize": placeholderforupdownsize
         },
         {
             "filename": "debian-netpkgs.iso",
             "version": "12",
-            "md5sum": "3192d003067cea87640e989d3933edff",
-            "filesize": 58423296
+            "md5sum": "placeholderforisomd5",
+            "filesize": placeholderforisosize
         }
     ],
     "versions": [
         {
-            "name": "12",
+            "name": "networkd",
             "images": {
-                "hda_disk_image": "debian-12-nocloud-amd64.qcow2",
+                "hda_disk_image": "debian12-netlab-networkd.qcow2",
+                "cdrom_image": "debian-netpkgs.iso"
+            }
+        },
+        {
+            "name": "ifupdown",
+            "images": {
+                "hda_disk_image": "debian12-netlab-ifupdown.qcow2",
                 "cdrom_image": "debian-netpkgs.iso"
             }
         }
