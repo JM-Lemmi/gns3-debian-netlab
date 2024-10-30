@@ -21,3 +21,24 @@ jobs:
           path: debian-netpkgs.iso
           if-no-files-found: error
           compression-level: 0
+
+  generate-gns3a:
+    needs: generate-iso
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download debian-netpkgs.iso
+        uses: actions/download-artifact@v4
+        with:
+          name: debian-netpkgs.iso
+      - run: echo "PKGISOMD5=$(md5sum debian-netpkgs.iso)" >> $GITHUB_OUTPUT
+      
+      - run: sed -i 's/3192d003067cea87640e989d3933edff/${PKGISOMD5}/g' debian-jle.gns3a
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: debian-jle.gns3a
+          path: debian-jle.gns3a
+          if-no-files-found: error
+          compression-level: 0
