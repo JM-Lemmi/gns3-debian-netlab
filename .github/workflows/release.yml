@@ -30,8 +30,9 @@ jobs:
       - run: apt update && apt install -y libguestfs-tools
       - run: wget https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-nocloud-amd64.qcow2
 
-      - run: virt-customize -a debian-12-nocloud-amd64.qcow2 --run-command 'apt update && apt install -y ifupdown && systemctl disable systemd-networkd.service systemd-networkd.socket && systemctl mask systemd-networkd.service systemd-networkd.socket && systemctl enable networking.service'
-      - run: virt-customize -a debian-12-nocloud-amd64.qcow2 --run-command 'apt update && apt install nano'
+      - name: install and enable networking.service in image
+        run: virt-customize -a debian-12-nocloud-amd64.qcow2 --run-command 'apt update && apt install -y ifupdown && systemctl disable systemd-networkd.service systemd-networkd.socket && systemctl mask systemd-networkd.service systemd-networkd.socket && systemctl enable networking.service'
+      - run: virt-customize -a debian-12-nocloud-amd64.qcow2 --run-command 'apt update && apt install -y nano neovim'
 
       - uses: actions/upload-artifact@v4
         with:
@@ -42,7 +43,7 @@ jobs:
 
 
   generate-gns3a:
-    needs: generate-iso
+    needs: [generate-iso, modify-img]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -51,8 +52,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: debian-netpkgs.iso
+      - name: Download debian-netpkgs.iso
+        uses: actions/download-artifact@v4
+        with:
+          name: debian-12-nocloud-amd64.qcow2
       
-      - run: sed -i "s/3192d003067cea87640e989d3933edff/$(md5sum debian-netpkgs.iso | cut -d' ' -f1)/g" debian-jle.gns3a
+      - name: replace md5sum of debian-12-nocloud-amd64.qcow2
+        run: sed -i "s/7dd9da43795fea484e723f057c237971/$(md5sum debian-12-nocloud-amd64.qcow2 | cut -d' ' -f1)/g" debian-jle.gns3a
+      - run: sed -i "s/414372864/$(wc -c debian-12-nocloud-amd64.qcow2 | cut -d' ' -f1)/g" debian-jle.gns3a
+      - name: replace md5sum of debian-netpkgs.iso
+        run: sed -i "s/3192d003067cea87640e989d3933edff/$(md5sum debian-netpkgs.iso | cut -d' ' -f1)/g" debian-jle.gns3a
       - run: sed -i "s/58423296/$(wc -c debian-netpkgs.iso | cut -d' ' -f1)/g" debian-jle.gns3a
 
       - uses: actions/upload-artifact@v4
