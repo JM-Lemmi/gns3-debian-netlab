@@ -1,5 +1,13 @@
 # GNS3 Debian Appliance
 
-This Appliance uses the official Debian Cloud image and adds an ISO with tools ready to install with apt install.
+This Appliance uses the official Debian Cloud image and adds tools that will help using debian in a network lab environment.
 
-Use the information from my wiki to generate the iso image and install apt packages: https://wiki.julian-lemmerich.de/doku.php?id=knowledge_base:linux:apt-local
+The image is using ifupdown as its network service.
+
+The login is with root and no password, as this is meant for testing and lab environments.
+
+## See also
+
+Wiki for Offline APT: https://wiki.julian-lemmerich.de/doku.php?id=knowledge_base:linux:apt-local
+
+Edit QEMU Image: https://first2host.co.uk/blog/how-to-edit-cloud-images-before-creating-a-template/
