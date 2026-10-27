@@ -11,7 +11,7 @@ jobs:
       PKG: "frr frr-doc linux-headers-amd64 jool-dkms jool-tools nmap netcat-traditional telnet apache2 ca-certificates net-tools nftables iptables ebtables bind9 nginx dnsmasq ifupdown bind9-dnsutils isc-dhcp-client"
     steps:
       - uses: actions/checkout@v4
-      - run: apt update && apt install -y libguestfs-tools
+      - run: apt update && apt install -y libguestfs-tools wget
       - run: wget --quiet https://cloud.debian.org/images/cloud/trixie/latest/debian-13-nocloud-amd64.qcow2
 
       # installing some basic tools
