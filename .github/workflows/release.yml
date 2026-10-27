@@ -42,12 +42,12 @@ jobs:
         with:
           name: debian13-netlab-networkd.qcow2
       - name: replace md5sum of debian-12-nocloud-amd64.qcow2
-        run: sed -i "s/placeholderfornetworkdmd5/$(md5sum debian13-netlab-networkd.qcow2 | cut -d' ' -f1)/g" debian-jle.gns3a
-      - run: sed -i "s/placeholderfornetworkdsize/$(wc -c debian13-netlab-networkd.qcow2 | cut -d' ' -f1)/g" debian-jle.gns3a
+        run: sed -i "s/placeholderfornetworkdmd5/$(md5sum debian13-netlab-networkd.qcow2 | cut -d' ' -f1)/g" debian-netlab.gns3a
+      - run: sed -i "s/placeholderfornetworkdsize/$(wc -c debian13-netlab-networkd.qcow2 | cut -d' ' -f1)/g" debian-netlab.gns3a
 
       - uses: actions/upload-artifact@v4
         with:
-          name: debian-jle.gns3a
-          path: debian-jle.gns3a
+          name: debian-netlab.gns3a
+          path: debian-netlab.gns3a
           if-no-files-found: error
           compression-level: 0
