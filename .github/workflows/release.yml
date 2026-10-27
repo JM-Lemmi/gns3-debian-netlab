@@ -8,7 +8,7 @@ jobs:
     container:
       image: debian
     env:
-      PKG: "frr frr-doc linux-headers-6.1.0-26-amd64 jool-dkms jool-tools nmap netcat-traditional telnet apache2 ca-certificates net-tools nftables iptables ebtables bind9 nginx dnsmasq ifupdown bind9-dnsutils isc-dhcp-client neovim"
+      PKG: "frr frr-doc linux-headers-generic jool-dkms jool-tools nmap netcat-traditional telnet apache2 ca-certificates net-tools nftables iptables ebtables bind9 nginx dnsmasq ifupdown bind9-dnsutils isc-dhcp-client"
     steps:
       - run: apt update && apt install -y apt-rdepends dpkg-dev
       - run: mkdir netpkgs
