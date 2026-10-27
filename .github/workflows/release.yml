@@ -24,6 +24,7 @@ jobs:
           compression-level: 0
     
   modify-img-networkd:
+    needs: [generate-apt-tar]
     runs-on: ubuntu-latest
     container:
       image: debian
@@ -54,7 +55,7 @@ jobs:
           compression-level: 0
   
   generate-gns3a:
-    needs: [generate-iso, modify-img-networkd]
+    needs: [modify-img-networkd]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
