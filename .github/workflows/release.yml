@@ -8,12 +8,16 @@ jobs:
     container:
       image: debian
     env:
-      PKG: "frr frr-doc linux-headers-generic jool-dkms jool-tools nmap netcat-traditional telnet apache2 ca-certificates net-tools nftables iptables ebtables bind9 nginx dnsmasq ifupdown bind9-dnsutils isc-dhcp-client"
+      PKG: "frr frr-doc linux-headers-amd64 jool-dkms jool-tools nmap netcat-traditional telnet apache2 ca-certificates net-tools nftables iptables ebtables bind9 nginx dnsmasq ifupdown bind9-dnsutils isc-dhcp-client"
     steps:
       - run: apt update && apt install -y apt-rdepends dpkg-dev
-      - run: mkdir netpkgs
-      - run: cd netpkgs && apt download $(apt-rdepends $PKG|grep -v "^ "|grep --invert-match -e debconf-2.0 -e libblas.so.3 -e cron-daemon -e libaprutil1-dbd-freetds -e "^host$")
-      - run: cd .. && dpkg-scanpackages netpkgs /dev/null | gzip -9c > netpkgs/Packages.gz
+      - run: mkdir netpkgs && cd netpkgs
+      - name: Download packages and dependencies
+        run: |
+          apt-rdepends -f Depends,PreDepends $PKG | grep -v "^ " | sort -u | while read -r p; do
+            apt-cache show "$p" >/dev/null 2>&1 && echo "$p"
+          done | xargs -r apt download
+      - run: dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
       - run: tar cvf debian-netpkgs.tar netpkgs/
 
       - uses: actions/upload-artifact@v4
