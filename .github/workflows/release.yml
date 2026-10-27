@@ -18,7 +18,7 @@ jobs:
             apt-cache show "$p" >/dev/null 2>&1 && echo "$p"
           done | xargs -r apt download
       - run: dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
-      - run: tar cvf debian-netpkgs.tar netpkgs/
+      - run: cd .. && tar cvf debian-netpkgs.tar netpkgs/
 
       - uses: actions/upload-artifact@v4
         with:
