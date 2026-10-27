@@ -2,7 +2,7 @@
 
 This Appliance uses the official Debian Cloud image and adds tools that will help using debian in a network lab environment.
 
-The image is using ifupdown as its network service.
+The image is using systemd-networkd as its network service.
 
 The login is with root and no password, as this is meant for testing and lab environments.
 

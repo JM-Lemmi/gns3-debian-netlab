@@ -9,7 +9,7 @@
     "registry_version": 4,
     "status": "experimental",
     "maintainer": "Julian Lemmerich",
-    "maintainer_email": "gns3@julian-lemmerich.de",
+    "maintainer_email": "jle@cirosec.de",
     "usage": "Username:\nroot\nPassword:\n",
     "symbol": "linux_guest.svg",
     "port_name_format": "ens{port4}",
@@ -24,36 +24,17 @@
     },
     "images": [
         {
-            "filename": "debian12-netlab-networkd.qcow2",
-            "version": "12",
+            "filename": "debian13-netlab.qcow2",
+            "version": "13",
             "md5sum": "placeholderfornetworkdmd5",
             "filesize": placeholderfornetworkdsize
-        },
-        {
-            "filename": "debian12-netlab-ifupdown.qcow2",
-            "version": "12",
-            "md5sum": "placeholderforupdowndmd5",
-            "filesize": placeholderforupdownsize
-        },
-        {
-            "filename": "debian-netpkgs.iso",
-            "version": "12",
-            "md5sum": "placeholderforisomd5",
-            "filesize": placeholderforisosize
         }
     ],
     "versions": [
         {
             "name": "networkd",
             "images": {
-                "hda_disk_image": "debian12-netlab-networkd.qcow2",
-                "cdrom_image": "debian-netpkgs.iso"
-            }
-        },
-        {
-            "name": "ifupdown",
-            "images": {
-                "hda_disk_image": "debian12-netlab-ifupdown.qcow2",
+                "hda_disk_image": "debian13-netlab.qcow2",
                 "cdrom_image": "debian-netpkgs.iso"
             }
         }
