@@ -3,35 +3,12 @@ on:
   push:
 
 jobs:
-  generate-apt-tar:
+  modify-img-networkd:
     runs-on: ubuntu-latest
     container:
       image: debian
     env:
       PKG: "frr frr-doc linux-headers-amd64 jool-dkms jool-tools nmap netcat-traditional telnet apache2 ca-certificates net-tools nftables iptables ebtables bind9 nginx dnsmasq ifupdown bind9-dnsutils isc-dhcp-client"
-    steps:
-      - run: apt update && apt install -y apt-rdepends dpkg-dev
-      - run: mkdir netpkgs && cd netpkgs
-      - name: Download packages and dependencies
-        run: |
-          apt-rdepends -f Depends,PreDepends $PKG | grep -v "^ " | sort -u | while read -r p; do
-            apt-cache show "$p" >/dev/null 2>&1 && echo "$p"
-          done | xargs -r apt download
-      - run: dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz
-      - run: cd .. && tar cvf debian-netpkgs.tar netpkgs/
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: debian-netpkgs.tar
-          path: debian-netpkgs.tar
-          if-no-files-found: error
-          compression-level: 0
-    
-  modify-img-networkd:
-    needs: [generate-apt-tar]
-    runs-on: ubuntu-latest
-    container:
-      image: debian
     steps:
       - uses: actions/checkout@v4
       - run: apt update && apt install -y libguestfs-tools
@@ -43,12 +20,7 @@ jobs:
       - run: virt-customize -a debian-13-nocloud-amd64.qcow2 --hostname debian
       
       # offline apt
-      - run: virt-customize -a debian-13-nocloud-amd64.qcow2 --run-command 'mkdir -p /var/cache/netpkgs && mv /etc/apt/sources.list.d/debian.sources /etc/apt/sources.list.d/debian.sources.bak && echo "deb [trusted=yes] file:/var/cache/netpkgs ./" > /etc/apt/sources.list.d/netpkgs.list && rm -rf /var/lib/apt/lists/*'
-      - name: Download debian-netpkgs.tar
-        uses: actions/download-artifact@v4
-        with:
-          name: debian-netpkgs.tar
-      - run: virt-customize -a debian-13-nocloud-amd64.qcow2 --tar-in debian-netpkgs.tar:/var/cache/netpkgs/
+      - run: virt-customize -a debian-13-nocloud-amd64.qcow2 --run-command 'apt update && apt install --download-only $PKG'
 
       - run: mv debian-13-nocloud-amd64.qcow2 debian13-netlab-networkd.qcow2
       - uses: actions/upload-artifact@v4
